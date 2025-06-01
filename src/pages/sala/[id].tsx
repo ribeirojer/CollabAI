@@ -1,7 +1,11 @@
-import { SimpleNav } from "@/components/SimpleNav"
-import { ArrowArcLeftIcon, Users, RobotIcon } from "@phosphor-icons/react"
-import { useState } from "react"
-
+import Layout from "@/components/Layout";
+import { MessageInput } from "@/components/MessageInput";
+import { MessageList } from "@/components/MessageList";
+import { UsernameInput } from "@/components/UsernameInput";
+import { supabase } from "@/lib/supabase";
+import { ArrowArcLeftIcon, RobotIcon, Users } from "@phosphor-icons/react";
+import { useState } from "react";
+/*
 export default function RoomPage() {
   const [message, setMessage] = useState("")
   const [messages] = useState([
@@ -43,8 +47,7 @@ export default function RoomPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <SimpleNav />
+    <Layout>
 
       <div className="max-w-6xl mx-auto p-6">
         <div className="mb-4">
@@ -53,7 +56,6 @@ export default function RoomPage() {
         </div>
 
         <div className="grid lg:grid-cols-4 gap-6">
-          {/* Chat */}
           <div className="lg:col-span-3">
             <div className="h-96">
               <div>
@@ -91,8 +93,6 @@ export default function RoomPage() {
               </button>
             </div>
           </div>
-
-          {/* Sidebar */}
           <div>
             <div>
               <div>
@@ -139,6 +139,98 @@ export default function RoomPage() {
           </div>
         </div>
       </div>
-    </div>
-  )
+      </Layout>  )
+}
+*/
+import { useEffect } from "react";
+
+type Message = {
+	id: string;
+	username: string;
+	content: string;
+	inserted_at: string;
+};
+
+export default function Home() {
+	const [messages, setMessages] = useState<Message[]>([]);
+	const [newMessage, setNewMessage] = useState("");
+	const [username, setUsername] = useState(
+		`User${Math.floor(Math.random() * 1000)}`,
+	);
+
+	useEffect(() => {
+		fetchMessages();
+
+		const subscription = supabase
+			.channel("realtime:messages")
+			.on(
+				"postgres_changes",
+				{ event: "INSERT", schema: "public", table: "messages" },
+				(payload: any) => {
+					setMessages((prev) => [...prev, payload.new]);
+					console.log("New message received:", payload.new);
+				},
+			)
+			.subscribe();
+
+		return () => {
+			supabase.removeChannel(subscription);
+		};
+	}, []);
+
+	async function fetchMessages() {
+		const { data, error } = await supabase
+			.from("messages")
+			.select("*")
+			.order("inserted_at", { ascending: true });
+
+		if (!error && data) {
+			setMessages(data as Message[]);
+		}
+	}
+
+	async function sendMessage() {
+		if (newMessage.trim() === "" || !username.trim()) return;
+
+		const { error } = await supabase.from("messages").insert({
+			content: newMessage,
+			username,
+		});
+
+		if (!error) {
+			await fetch("/api/chat-reply", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					content: newMessage,
+					username,
+					persona: "Moderador",
+				}),
+			});
+
+			setNewMessage("");
+		} else {
+			console.error("Error sending message:", error);
+		}
+	}
+
+	return (
+		<Layout>
+			<div className="mx-auto max-w-md w-full bg-white p-6 rounded-lg shadow-lg">
+				<h1 className="text-2xl font-bold mb-4 text-center text-blue-600">
+					Chat
+				</h1>
+
+				<UsernameInput username={username} setUsername={setUsername} />
+
+				<MessageList messages={messages} />
+
+				<MessageInput
+					newMessage={newMessage}
+					setNewMessage={setNewMessage}
+					onSend={sendMessage}
+				/>
+			</div>
+		</Layout>
+	);
 }

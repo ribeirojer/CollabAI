@@ -8,7 +8,7 @@ type LoadingProps = {
 const Loading = ({ message, dataTestId }: LoadingProps) => {
 	return (
 		<div
-			className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-50"
+			className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black bg-opacity-75"
 			data-testid={dataTestId}
 		>
 			<svg
@@ -27,7 +27,7 @@ const Loading = ({ message, dataTestId }: LoadingProps) => {
 					strokeWidth="4"
 				/>
 				<path
-					className="text-[--action-blue] opacity-75"
+					className="text-white opacity-75"
 					fill="currentColor"
 					d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.291z"
 				/>

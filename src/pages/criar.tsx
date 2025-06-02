@@ -1,285 +1,223 @@
 import Layout from "@/components/Layout";
-import {
-	Code,
-	Globe,
-	GraduationCap,
-	Lightbulb,
-	LightningAIcon,
-	Lock,
-	Plus,
-	X,
-} from "@phosphor-icons/react";
+import { MainForm } from "@/components/MainForm";
+import Paragraf from "@/components/Paragraf";
+import Title from "@/components/Title";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 
 export default function CreateRoomPage() {
-	const [roomName, setRoomName] = useState("");
-	const [description, setDescription] = useState("");
-	const [roomType, setRoomType] = useState("brainstorming");
-	const [isPublic, setIsPublic] = useState(true);
-	const [maxParticipants, setMaxParticipants] = useState("20");
-	const [tags, setTags] = useState<string[]>([]);
-	const [newTag, setNewTag] = useState("");
-	const [inviteEmails, setInviteEmails] = useState<string[]>([]);
-	const [newEmail, setNewEmail] = useState("");
+	const router = useRouter();
+	const [room, setRoom] = useState({
+		name: "",
+		description: "",
+		roomType: "",
+		isPublic: true,
+		maxParticipants: 5,
+		password: "",
+	});
+	const [errors, setErrors] = useState({
+		name: "",
+		description: "",
+		roomType: "",
+		isPublic: "",
+		maxParticipants: "",
+		password: "",
+		general: "",
+	});
+	const roomNameRef = React.useRef<HTMLInputElement>(null);
+	const descriptionRef = React.useRef<HTMLTextAreaElement>(null);
+	const roomTypeRef = React.useRef<HTMLSelectElement>(null);
+	const maxParticipantsRef = React.useRef<HTMLInputElement>(null);
+	const passwordRef = React.useRef<HTMLInputElement>(null);
 
-	const types = [
-		{ id: "brainstorming", name: "Brainstorming", desc: "Gerar ideias" },
-		{ id: "projeto", name: "Projeto", desc: "Desenvolver junto" },
-		{ id: "educacao", name: "Educação", desc: "Aprender junto" },
-		{ id: "hackathon", name: "Hackathon", desc: "Competir" },
-	];
+	const refs = {
+		roomName: roomNameRef,
+		description: descriptionRef,
+		roomType: roomTypeRef,
+		maxParticipants: maxParticipantsRef,
+		password: passwordRef,
+	};
 
-	const handleCreateRoom = () => {
-		if (roomName.trim() && description.trim()) {
-			// Aqui seria a lógica para criar a sala
-			console.log({
-				roomName,
-				description,
-				roomType,
-				isPublic,
-				maxParticipants,
-				tags,
-				inviteEmails,
+	const [success, setSuccess] = useState(false);
+	const [loading, setLoading] = useState(false);
+
+	const handleCreateRoom = async () => {
+		setErrors({
+			name: "",
+			description: "",
+			roomType: "",
+			isPublic: "",
+			maxParticipants: "",
+			password: "",
+			general: "",
+		});
+		setSuccess(false);
+
+		if (!room.name.trim()) {
+			setErrors((prev) => ({ ...prev, name: "O nome da sala é obrigatório." }));
+			roomNameRef.current?.focus();
+			return;
+		}
+
+		if (!room.description.trim()) {
+			setErrors((prev) => ({
+				...prev,
+				description: "A descrição é obrigatória.",
+			}));
+			descriptionRef.current?.focus();
+			return;
+		}
+
+		if (!room.roomType) {
+			setErrors((prev) => ({
+				...prev,
+				roomType: "Selecione um tipo de sala.",
+			}));
+			roomTypeRef.current?.focus();
+			return;
+		}
+
+		if (room.isPublic === undefined) {
+			setErrors((prev) => ({
+				...prev,
+				isPublic: "Selecione a visibilidade da sala.",
+			}));
+			return;
+		}
+
+		if (room.maxParticipants <= 0) {
+			setErrors((prev) => ({
+				...prev,
+				maxParticipants:
+					"O número máximo de participantes deve ser maior que 0.",
+			}));
+			maxParticipantsRef.current?.focus();
+			return;
+		}
+
+		if (room.maxParticipants > 20) {
+			setErrors((prev) => ({
+				...prev,
+				maxParticipants:
+					"O número máximo de participantes deve ser 20 ou menos.",
+			}));
+			maxParticipantsRef.current?.focus();
+			return;
+		}
+
+		if (!room.isPublic && !room.password.trim()) {
+			setErrors((prev) => ({
+				...prev,
+				password: "A senha é obrigatória para salas privadas.",
+			}));
+			passwordRef.current?.focus();
+			return;
+		}
+
+		if (room.password && room.password.length < 6) {
+			setErrors((prev) => ({
+				...prev,
+				password: "A senha deve ter pelo menos 6 caracteres.",
+			}));
+			passwordRef.current?.focus();
+			return;
+		}
+
+		setLoading(true);
+		// Aqui seria a lógica para criar a sala
+		console.log({
+			roomName: room.name,
+			description: room.description,
+			roomType: room.roomType,
+			isPublic: room.isPublic,
+			maxParticipants: room.maxParticipants,
+			password: room.password,
+		});
+
+		try {
+			const response = await fetch("/api/rooms", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: room.name,
+					description: room.description,
+					roomType: room.roomType,
+					isPublic: room.isPublic,
+					maxParticipants: room.maxParticipants,
+					password: room.password,
+				}),
 			});
+			if (!response.ok) {
+				const errorData = await response.json();
+				setErrors((prev) => ({
+					...prev,
+					general: errorData.message || "Erro ao criar sala.",
+				}));
+				setLoading(false);
+				return;
+			}
+			const data = await response.json();
+			console.log("Sala criada com sucesso:", data);
+			setLoading(false);
+
+			router.push(`/rooms/${data.id}`);
+			setSuccess(true);
+		} catch (error) {
+			console.error("Erro ao criar sala:", error);
+			setLoading(false);
+			setErrors((prev) => ({
+				...prev,
+				general: "Erro ao criar sala. Tente novamente mais tarde.",
+			}));
 		}
-	};
-
-	const addTag = () => {
-		if (newTag.trim() && !tags.includes(newTag.trim())) {
-			setTags([...tags, newTag.trim()]);
-			setNewTag("");
+		if (success) {
+			alert("Sala criada com sucesso!");
 		}
-	};
-
-	const removeTag = (tagToRemove: string) => {
-		setTags(tags.filter((tag) => tag !== tagToRemove));
-	};
-
-	const addEmail = () => {
-		if (newEmail.trim() && !inviteEmails.includes(newEmail.trim())) {
-			setInviteEmails([...inviteEmails, newEmail.trim()]);
-			setNewEmail("");
+		if (errors.general) {
+			alert(errors.general);
 		}
-	};
-
-	const removeEmail = (emailToRemove: string) => {
-		setInviteEmails(inviteEmails.filter((email) => email !== emailToRemove));
+		setSuccess(false);
+		setLoading(false);
+		setErrors({
+			name: "",
+			description: "",
+			roomType: "",
+			isPublic: "",
+			maxParticipants: "",
+			password: "",
+			general: "",
+		});
 	};
 
 	return (
 		<Layout>
-			<main className="flex-1 overflow-auto">
-				<div className="p-6 max-w-4xl mx-auto">
-					{/* Header */}
-					<div className="mb-6">
-						<h1 className="text-3xl font-bold mb-2">Criar Nova Sala</h1>
-						<p className="text-gray-600">Configure sua sala de colaboração</p>
+			<main className="py-6 md:py-12 max-w-3xl mx-auto">
+				<Title>Criar nova sala</Title>
+				<Paragraf>Configure sua sala de colaboração</Paragraf>
+				<MainForm room={room} setRoom={setRoom} errors={errors} refs={refs} />
+
+				{errors.general && (
+					<div className="max-w-3xl mx-auto mt-4">
+						<p className="text-red-600">{errors.general}</p>
 					</div>
-
-					<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-						{/* Main Form */}
-						<div className="lg:col-span-2 space-y-6">
-							{/* Basic Info */}
-							<div>
-								<div>
-									<h2>Informações Básicas</h2>
-									<p>Defina o nome e descrição da sua sala</p>
-								</div>
-								<div className="space-y-4">
-									<div>
-										<label htmlFor="roomName">Nome da Sala</label>
-										<input
-											id="roomName"
-											placeholder="Ex: Brainstorming App Mobile"
-											value={roomName}
-											onChange={(e) => setRoomName(e.target.value)}
-										/>
-									</div>
-									<div>
-										<label htmlFor="description">Descrição</label>
-										<textarea
-											id="description"
-											placeholder="Descreva o objetivo e contexto da colaboração..."
-											value={description}
-											onChange={(e) => setDescription(e.target.value)}
-											rows={3}
-										/>
-									</div>
-								</div>
-							</div>
-
-							{/* Room Type */}
-							<div>
-								<div>
-									<h2>Tipo de Sala</h2>
-									<p>Escolha o formato que melhor se adequa ao seu objetivo</p>
-								</div>
-								<div>
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-										{types.map((type) => (
-											<div
-												key={type.id}
-												className={`p-4 border rounded-lg cursor-pointer transition-colors ${
-													roomType === type.id
-														? "border-blue-500 bg-blue-50"
-														: "hover:bg-gray-50"
-												}`}
-												onClick={() => setRoomType(type.id)}
-											>
-												<div className="flex items-center gap-3">
-													<div className="p-2 rounded-lg bg-yellow-100 text-yellow-800">
-														{type.id === "brainstorming" && (
-															<Lightbulb className="h-4 w-4" />
-														)}
-														{type.id === "projeto" && (
-															<Code className="h-4 w-4" />
-														)}
-														{type.id === "educacao" && (
-															<GraduationCap className="h-4 w-4" />
-														)}
-														{type.id === "hackathon" && (
-															<LightningAIcon className="h-4 w-4" />
-														)}
-													</div>
-													<div>
-														<h4 className="font-medium">{type.name}</h4>
-														<p className="text-sm text-muted-foreground">
-															{type.desc}
-														</p>
-													</div>
-												</div>
-											</div>
-										))}
-									</div>
-								</div>
-							</div>
-
-							{/* Tags */}
-							<div>
-								<div>
-									<h2>Tags</h2>
-									<p>Adicione tags para facilitar a descoberta da sala</p>
-								</div>
-								<div className="space-y-4">
-									<div className="flex gap-2">
-										<input
-											placeholder="Adicionar tag..."
-											value={newTag}
-											onChange={(e) => setNewTag(e.target.value)}
-											onKeyPress={(e) => e.key === "Enter" && addTag()}
-										/>
-										<button onClick={addTag}>
-											<Plus className="h-4 w-4" />
-										</button>
-									</div>
-									<div className="flex flex-wrap gap-2">
-										{tags.map((tag) => (
-											<span key={tag} className="gap-1">
-												{tag}
-												<button onClick={() => removeTag(tag)}>
-													<X className="h-3 w-3" />
-												</button>
-											</span>
-										))}
-									</div>
-								</div>
-							</div>
-						</div>
-
-						{/* Settings Sidebar */}
-						<div className="space-y-6">
-							{/* Privacy & Limits */}
-							<div>
-								<div>
-									<h2>Configurações</h2>
-								</div>
-								<div className="space-y-4">
-									<div className="flex items-center justify-between">
-										<div className="flex items-center gap-2">
-											{isPublic ? (
-												<Globe className="h-4 w-4" />
-											) : (
-												<Lock className="h-4 w-4" />
-											)}
-											<label>Sala Pública</label>
-										</div>
-										{/*<Switch checked={isPublic} onCheckedChange={setIsPublic} />*/}
-										<input
-											type="checkbox"
-											checked={isPublic}
-											onChange={(e) => setIsPublic(e.target.checked)}
-											className="toggle toggle-primary"
-										/>
-									</div>
-
-									<div>
-										<label htmlFor="maxParticipants">
-											Máximo de Participantes
-										</label>
-										<input
-											id="maxParticipants"
-											type="number"
-											value={maxParticipants}
-											onChange={(e) => setMaxParticipants(e.target.value)}
-											min="2"
-											max="100"
-										/>
-									</div>
-								</div>
-							</div>
-
-							{/* Invites */}
-							<div>
-								<div>
-									<h2>Convidar Participantes</h2>
-									<p>Convide pessoas específicas para a sala</p>
-								</div>
-								<div className="space-y-4">
-									<div className="flex gap-2">
-										<input
-											placeholder="email@exemplo.com"
-											value={newEmail}
-											onChange={(e) => setNewEmail(e.target.value)}
-											onKeyPress={(e) => e.key === "Enter" && addEmail()}
-										/>
-										<button onClick={addEmail}>
-											<Plus className="h-4 w-4" />
-										</button>
-									</div>
-									<div className="space-y-2">
-										{inviteEmails.map((email) => (
-											<div
-												key={email}
-												className="flex items-center justify-between p-2 bg-muted rounded"
-											>
-												<div className="flex items-center gap-2">
-													<div className="h-6 w-6">
-														<span className="text-xs">
-															{email.charAt(0).toUpperCase()}
-														</span>
-													</div>
-													<span className="text-sm">{email}</span>
-												</div>
-												<button onClick={() => removeEmail(email)}>
-													<X className="h-3 w-3" />
-												</button>
-											</div>
-										))}
-									</div>
-								</div>
-							</div>
-
-							{/* Create button */}
-							<button
-								className="w-full"
-								onClick={handleCreateRoom}
-								disabled={!roomName.trim() || !description.trim()}
-							>
-								Criar Sala
-							</button>
-						</div>
+				)}
+				{success && (
+					<div className="max-w-3xl mx-auto mt-4">
+						<p className="text-green-600">Sala criada com sucesso!</p>
 					</div>
-				</div>
+				)}
+				<button
+					className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200 mt-6"
+					aria-label="Criar Sala"
+					aria-disabled={loading}
+					disabled={loading}
+					onClick={handleCreateRoom}
+					type="button"
+				>
+					{loading ? "Criando Sala..." : "Criar Sala"}
+				</button>
 			</main>
 		</Layout>
 	);

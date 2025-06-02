@@ -24,25 +24,15 @@ export default async function handler(
 			return res.status(500).json({ error: "Internal server error" });
 		}
 	} else if (req.method === "POST") {
-		const {
-			name,
-			description,
-			type,
-			isPublic,
-			maxParticipants,
-			createdBy,
-			aiSettings,
-			tags,
-		} = req.body;
+		const { name, description, roomType, isPublic, maxParticipants } = req.body;
+		console.log("Creating room with data:", req.body);
 
 		if (
 			!name ||
 			!description ||
-			!type ||
+			!roomType ||
 			typeof isPublic !== "boolean" ||
-			!maxParticipants ||
-			!createdBy ||
-			!aiSettings
+			!maxParticipants
 		) {
 			console.error("Missing required fields for room creation");
 			return res.status(400).json({ error: "Missing required fields" });
@@ -54,19 +44,16 @@ export default async function handler(
 				.insert({
 					name,
 					description,
-					type,
+					roomType,
 					isPublic,
 					maxParticipants,
-					createdBy,
-					aiSettings,
-					tags,
 					createdAt: new Date(),
 				})
 				.select()
 				.single();
 
 			if (error) {
-				console.error("Error creating room:", error);
+				console.error("Error creating room:", error.message);
 				return res.status(500).json({ error: error.message });
 			}
 

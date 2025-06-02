@@ -1,0 +1,54 @@
+import type { Room } from "@/interfaces";
+import { supabase } from "@/lib/supabase";
+
+export async function createRoom(room: Room): Promise<Room | null> {
+	const roomData = {
+		name: room.name,
+		description: room.description,
+		type: room.type,
+		ispublic: room.isPublic,
+		maxparticipants: room.maxParticipants,
+	};
+
+	const { data, error } = await supabase
+		.from("rooms")
+		.insert([roomData])
+		.select()
+		.single();
+
+	if (error) {
+		console.error("Error creating room:", error);
+		return null;
+	}
+
+	return data;
+}
+
+export async function getRooms(): Promise<Room[] | null> {
+	const { data, error } = await supabase
+		.from("rooms")
+		.select("*")
+		.order("createdAt", { ascending: false });
+
+	if (error) {
+		console.error("Error listing rooms:", error.message);
+		return null;
+	}
+
+	return data;
+}
+
+export async function getRoomById(id: string): Promise<Room | null> {
+	const { data, error } = await supabase
+		.from("rooms")
+		.select("*")
+		.eq("id", id)
+		.single();
+
+	if (error) {
+		console.error("Error fetching room by ID:", error.message);
+		return null;
+	}
+
+	return data;
+}

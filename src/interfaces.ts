@@ -14,16 +14,16 @@ export interface UserSettings {
 }
 
 export interface Room {
-	id: string;
+	id?: string;
 	name: string;
 	description: string;
-	type: "brainstorming" | "projeto" | "educacao" | "hackathon";
+	type: "moderador" | "criativo" | "analista" | "mentor";
 	isPublic: boolean;
 	maxParticipants: number;
-	createdBy: string; // userId
-	createdAt: Date;
-	aiSettings: AISettings;
-	tags: string[];
+	createdBy?: string; // userId
+	createdAt?: Date;
+	aiSettings?: AISettings;
+	tags?: string[];
 }
 
 export interface Message {

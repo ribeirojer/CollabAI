@@ -13,7 +13,7 @@ interface RoomTypeSelectorProps {
 
 const persona = [
 	{
-		id: "moderator",
+		id: "moderador",
 		name: "Moderador",
 		desc: "Facilita discussões e organiza ideias.",
 		icon: <ScalesIcon size={32} weight="duotone" />,

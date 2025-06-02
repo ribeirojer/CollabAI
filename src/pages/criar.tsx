@@ -162,8 +162,7 @@ export default function CreateRoomPage() {
 			console.log("Sala criada com sucesso:", data);
 			setLoading(false);
 
-			router.push(`/rooms/${data.id}`);
-			setSuccess(true);
+			router.push(`/sala/${data.id}`);
 		} catch (error) {
 			console.error("Erro ao criar sala:", error);
 			setLoading(false);

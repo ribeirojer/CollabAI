@@ -1,28 +1,25 @@
+import type { Message, Room } from "@/interfaces";
 import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-export type Message = {
-	id: string;
-	username: string;
-	content: string;
-	inserted_at: string;
-};
-
-export function useChat(username: string) {
+export function useChat(username: string, id: string | string[] | undefined) {
+	const router = useRouter();
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [newMessage, setNewMessage] = useState("");
+	const [isLoading, setIsLoading] = useState(true);
+	const [room, setRoom] = useState<Room | null>(null);
 
 	useEffect(() => {
 		fetchMessages();
 
 		const subscription = supabase
-			.channel("realtime:messages")
+			.channel("realtime:message")
 			.on(
 				"postgres_changes",
 				{ event: "INSERT", schema: "public", table: "messages" },
 				(payload: any) => {
 					setMessages((prev) => [...prev, payload.new]);
-					console.log("New message received:", payload.new);
 				},
 			)
 			.subscribe();
@@ -32,11 +29,35 @@ export function useChat(username: string) {
 		};
 	}, []);
 
+	useEffect(() => {
+		const fetchRoomData = async () => {
+			if (id) {
+				try {
+					setIsLoading(true);
+					const response = await fetch(`/api/rooms/${id}`);
+					if (response.ok) {
+						const data = await response.json();
+						setRoom(data);
+						setIsLoading(false);
+					} else {
+						console.error("Failed to fetch room data:", id);
+						router.push("/");
+					}
+					setIsLoading(false);
+				} catch (error) {
+					console.error("Error fetching room data:", error);
+				}
+			}
+		};
+		fetchRoomData();
+	}, [id]);
+
 	async function fetchMessages() {
 		const { data, error } = await supabase
 			.from("messages")
 			.select("*")
-			.order("inserted_at", { ascending: true });
+			.eq("roomid", id)
+			.order("timestamp", { ascending: true });
 
 		if (!error && data) {
 			setMessages(data as Message[]);
@@ -46,26 +67,37 @@ export function useChat(username: string) {
 	async function sendMessage() {
 		if (newMessage.trim() === "" || !username.trim()) return;
 
+		if (!id || Array.isArray(id)) {
+			console.error("Invalid room ID:", id);
+			return;
+		}
+
 		const { error } = await supabase.from("messages").insert({
 			content: newMessage,
 			username,
+			roomid: id,
+			isai: false,
 		});
 
-		if (!error) {
+		if (error) {
+			console.error("Error inserting message:", error);
+			return;
+		}
+
+		try {
+			// Send the message to the API endpoint
 			await fetch("/api/chat-reply", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({
-					content: newMessage,
-					username,
-					persona: "Moderador",
+					roomId: id,
 				}),
 			});
-
-			setNewMessage("");
-		} else {
-			console.error("Error sending message:", error);
+		} catch (error) {
+			console.error("Error sending message to API:", error);
 		}
+
+		setNewMessage("");
 	}
 
 	return {
@@ -73,5 +105,7 @@ export function useChat(username: string) {
 		newMessage,
 		setNewMessage,
 		sendMessage,
+		room,
+		isLoading,
 	};
 }

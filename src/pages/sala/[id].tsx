@@ -1,21 +1,26 @@
 import Layout from "@/components/Layout";
 import { useChat } from "@/hooks/useChat";
 import { ArrowArcLeftIcon, RobotIcon, Users } from "@phosphor-icons/react";
+import { useRouter } from "next/router";
 import { useState } from "react";
 
 export default function Home() {
 	const [username] = useState(`User${Math.floor(Math.random() * 1000)}`);
-	const { messages, newMessage, setNewMessage, sendMessage } =
-		useChat(username);
+	const router = useRouter();
+	const { id } = router.query;
+	const { messages, newMessage, setNewMessage, sendMessage, room, isLoading } =
+		useChat(username, id);
 
 	return (
 		<Layout>
 			<div className="max-w-6xl mx-auto p-6">
 				<div className="mb-6">
 					<h1 className="text-3xl font-bold text-gray-800">
-						IA na Saúde - Brainstorming
+						{room?.name || "Carregando..."}
 					</h1>
-					<p className="text-gray-500 mt-1">4 participantes online</p>
+					<p className="text-gray-600">
+						{room?.description || "Carregando descrição..."}
+					</p>
 				</div>
 
 				<div className="grid lg:grid-cols-4 gap-6">
@@ -27,14 +32,14 @@ export default function Home() {
 									<div
 										key={msg.id}
 										className={`p-3 rounded-lg text-sm ${
-											msg.username === "openai-bot"
+											msg.isAI
 												? "bg-blue-50 border-l-4 border-blue-500"
 												: "bg-gray-50 border"
 										}`}
 									>
 										<div className="flex items-center gap-2 mb-1">
 											<span className="font-medium">{msg.username}</span>
-											{msg.username === "openai-bot" && (
+											{msg.isAI && (
 												<RobotIcon className="w-4 h-4 text-blue-600" />
 											)}
 										</div>
@@ -68,7 +73,7 @@ export default function Home() {
 								Participantes
 							</h2>
 							<div className="space-y-2 text-sm text-gray-700">
-								<span>{username} (Você)</span>
+								<span>{} (Você)</span>
 								{/* Aqui poderia listar os outros participantes se quiser */}
 							</div>
 						</div>

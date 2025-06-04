@@ -24,11 +24,12 @@ export async function createRoom(room: Room): Promise<Room | null> {
 	return data;
 }
 
-export async function getRooms(): Promise<Room[] | null> {
+export async function getPublicRooms(): Promise<Room[] | null> {
 	const { data, error } = await supabase
 		.from("rooms")
 		.select("*")
-		.order("createdAt", { ascending: false });
+		.eq("ispublic", true)
+		.order("createdat", { ascending: false });
 
 	if (error) {
 		console.error("Error listing rooms:", error.message);

@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { Room } from "../../../interfaces";
-import { createRoom, getRooms } from "../../../repositories/room";
+import { createRoom, getPublicRooms } from "../../../repositories/room";
 
 export default async function handler(
 	req: NextApiRequest,
@@ -8,20 +8,15 @@ export default async function handler(
 ) {
 	if (req.method === "GET") {
 		try {
-			const rooms = await getRooms(); // Assuming getRooms is defined to fetch rooms
+			const rooms = await getPublicRooms(); // Assuming getRooms is defined to fetch rooms
+
 			if (!rooms || rooms.length === 0) {
 				console.log("No rooms found");
 				return res.status(404).json({ error: "No rooms found" });
 			}
 			console.log("Rooms retrieved successfully:", rooms);
-			// Optionally, you can format the rooms or filter them here if needed
-			// For example, if you want to return only public rooms:
-			const publicRooms = rooms.filter((room) => room.isPublic);
-			//
-			return res.status(200).json(publicRooms);
-			// If you want to return all rooms without filtering
-			// return res.status(200).json(rooms);
-			// Assuming getRooms is a function that fetches rooms from the database
+
+			return res.status(200).json(rooms);
 		} catch (error) {
 			console.error("Unexpected error listing rooms:", error);
 			return res.status(500).json({ error: "Internal server error" });

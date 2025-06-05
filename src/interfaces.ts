@@ -19,6 +19,7 @@ export interface Room {
 	description: string;
 	type: "moderador" | "criativo" | "analista" | "mentor";
 	isPublic: boolean;
+	is_active: boolean;
 	maxParticipants: number;
 	createdBy?: string; // userId
 	createdAt?: Date;

@@ -1,41 +1,41 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from "react";
 
-const USERNAME_KEY = 'username';
+const USERNAME_KEY = "username";
 
 export const UsernameStorage = {
-  get(): string | null {
-    if (typeof window === 'undefined') return null;
-    return localStorage.getItem(USERNAME_KEY);
-  },
+	get(): string | null {
+		if (typeof window === "undefined") return null;
+		return localStorage.getItem(USERNAME_KEY);
+	},
 
-  set(username: string): void {
-    if (typeof window === 'undefined') return;
-    localStorage.setItem(USERNAME_KEY, username);
-  },
+	set(username: string): void {
+		if (typeof window === "undefined") return;
+		localStorage.setItem(USERNAME_KEY, username);
+	},
 
-  remove(): void {
-    if (typeof window === 'undefined') return;
-    localStorage.removeItem(USERNAME_KEY);
-  },
+	remove(): void {
+		if (typeof window === "undefined") return;
+		localStorage.removeItem(USERNAME_KEY);
+	},
 };
 
 export function useUsername() {
-  const [username, setUsernameState] = useState<string>("");
+	const [username, setUsernameState] = useState<string>("");
 
-  useEffect(() => {
-    const storedUsername = UsernameStorage.get();
-    setUsernameState(storedUsername || "");
-  }, []);
+	useEffect(() => {
+		const storedUsername = UsernameStorage.get();
+		setUsernameState(storedUsername || "");
+	}, []);
 
-  const setUsername = (newUsername: string) => {
-    UsernameStorage.set(newUsername);
-    setUsernameState(newUsername);
-  };
+	const setUsername = (newUsername: string) => {
+		UsernameStorage.set(newUsername);
+		setUsernameState(newUsername);
+	};
 
-  const removeUsername = () => {
-    UsernameStorage.remove();
-    setUsernameState("");
-  };
+	const removeUsername = () => {
+		UsernameStorage.remove();
+		setUsernameState("");
+	};
 
-  return { username, setUsername, removeUsername };
+	return { username, setUsername, removeUsername };
 }

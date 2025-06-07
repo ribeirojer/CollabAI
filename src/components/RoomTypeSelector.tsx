@@ -53,11 +53,14 @@ export const RoomTypeSelector = ({
 			</p>
 			<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 				{persona.map((type) => (
-					<div
+					<button
 						key={type.id}
 						className={`flex items-start p-4 border rounded-xl cursor-pointer transition shadow-sm
               ${roomType === type.id ? "border-blue-500 bg-blue-50" : "hover:bg-gray-50 border-gray-200"}`}
 						onClick={() => setRoomType(type.id)}
+						aria-label={`Selecionar tipo de sala ${type.name}`}
+						title={`Selecionar tipo de sala ${type.name}`}
+						type="button"
 					>
 						<div
 							className={`flex items-center justify-center p-3 rounded-md mr-4 
@@ -69,7 +72,7 @@ export const RoomTypeSelector = ({
 							<h4 className="font-semibold text-gray-800">{type.name}</h4>
 							<p className="text-sm text-gray-500">{type.desc}</p>
 						</div>
-					</div>
+					</button>
 				))}
 			</div>
 			{error && (

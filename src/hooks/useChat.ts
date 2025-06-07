@@ -18,7 +18,7 @@ export function useChat(username: string, id: string | string[] | undefined) {
 			.on(
 				"postgres_changes",
 				{ event: "INSERT", schema: "public", table: "messages" },
-				(payload: any) => {
+				(payload: { new: Message }) => {
 					setMessages((prev) => [...prev, payload.new]);
 				},
 			)
@@ -50,7 +50,7 @@ export function useChat(username: string, id: string | string[] | undefined) {
 			}
 		};
 		fetchRoomData();
-	}, [id]);
+	}, [id, router]);
 
 	async function fetchMessages() {
 		const { data, error } = await supabase

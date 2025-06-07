@@ -10,10 +10,7 @@ import React from "react";
 const Header = () => {
 	const pathname = usePathname();
 
-	const links = [
-		{ href: "/explorar", icon: MagnifyingGlassIcon, label: "Explorar" },
-		{ href: "/criar", icon: PlusIcon, label: "Criar" },
-	];
+	const links = [{ href: "/criar", icon: PlusIcon, label: "Criar" }];
 
 	return (
 		<>

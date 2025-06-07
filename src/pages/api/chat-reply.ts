@@ -53,7 +53,9 @@ function buildSystemPrompt(
 	return "Você é um assistente virtual. Responda de forma clara, curta, objetiva e profissional. Evite formatar as respostas.";
 }
 
-function buildRecentMessagesText(recentMessages: any[]) {
+function buildRecentMessagesText(
+	recentMessages: { username: string; content: string; timestamp: string }[],
+) {
 	return recentMessages
 		.map(
 			(msg) =>

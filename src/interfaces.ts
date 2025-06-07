@@ -14,6 +14,9 @@ export interface UserSettings {
 }
 
 export interface Room {
+	lastActivity?: string; // data da última atividade
+	participants: string;
+	host: string;
 	id?: string;
 	name: string;
 	description: string;
@@ -34,7 +37,6 @@ export interface Message {
 	content: string;
 	isAI: boolean;
 	timestamp: Date;
-	metadata?: any; // dados adicionais como links, imagens, etc.
 }
 
 export interface RoomParticipant {

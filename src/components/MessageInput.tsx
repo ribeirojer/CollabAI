@@ -17,6 +17,10 @@ export function MessageInput({ newMessage, setNewMessage, onSend }: Props) {
 			<button
 				className="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 transition"
 				onClick={onSend}
+				disabled={!newMessage.trim()}
+				aria-label="Enviar mensagem"
+				title="Enviar mensagem"
+				type="button"
 			>
 				Enviar
 			</button>

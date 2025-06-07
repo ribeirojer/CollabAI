@@ -22,8 +22,8 @@ export default async function handler(
 			return res.status(500).json({ error: "Internal server error" });
 		}
 	} else if (req.method === "POST") {
-		const { name, description, roomType, isPublic, maxParticipants } = req.body;
-		console.log("Creating room with data:", req.body);
+		const { name, description, type, isPublic, maxParticipants, host } =
+			req.body;
 
 		if (!name || !description || typeof isPublic !== "boolean") {
 			console.error("Missing required fields for room creation");
@@ -31,8 +31,8 @@ export default async function handler(
 		}
 
 		if (
-			!roomType ||
-			!["moderador", "criativo", "analista", "mentor"].includes(roomType)
+			!type ||
+			!["moderador", "criativo", "analista", "mentor"].includes(type)
 		) {
 			console.error("Invalid room type provided");
 			return res.status(400).json({ error: "Invalid room type provided" });
@@ -43,13 +43,22 @@ export default async function handler(
 			return res.status(400).json({ error: "Invalid max participants value" });
 		}
 
+		if (!host || typeof host !== "string") {
+			console.error("Invalid host provided");
+			return res.status(400).json({ error: "Invalid host provided" });
+		}
+
 		try {
 			const room: Room = {
 				name,
 				description,
-				type: roomType,
+				type: type,
 				isPublic,
 				maxParticipants,
+				lastActivity: new Date().toISOString(),
+				participants: "",
+				host,
+				is_active: true,
 			};
 
 			const createdroom = await createRoom(room);

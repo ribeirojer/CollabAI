@@ -28,6 +28,7 @@ export default function CartSuccessAlert() {
 							d="M10 18.333A8.333 8.333 0 1 0 10 1.667a8.333 8.333 0 0 0 0 16.666ZM8.333 13.333l-3.333-3.333 1.175-1.175L8.333 11l5.492-5.492 1.175 1.175L8.333 13.333Z"
 							clipRule="evenodd"
 						/>
+						<title>Produto adicionado com sucesso</title>
 					</svg>
 				</div>
 				<div className="ml-3 flex-1">
@@ -39,6 +40,9 @@ export default function CartSuccessAlert() {
 				<button
 					onClick={() => setShow(false)}
 					className="ml-4 text-green-700 hover:text-green-900"
+					aria-label="Fechar alerta"
+					title="Fechar alerta"
+					type="button"
 				>
 					✖
 				</button>

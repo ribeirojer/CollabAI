@@ -8,6 +8,7 @@ export async function createRoom(room: Room): Promise<Room | null> {
 		type: room.type,
 		ispublic: room.isPublic,
 		maxparticipants: room.maxParticipants,
+		host: room.host,
 	};
 
 	const { data, error } = await supabase

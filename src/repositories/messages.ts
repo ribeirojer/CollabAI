@@ -1,11 +1,11 @@
 import { supabase } from "@/lib/supabase";
 
-export async function getRecentMessages(roomId: string, limit = 10) {
+export async function getRecentMessages(roomId: string, limit = 5) {
 	const { data, error } = await supabase
 		.from("messages")
 		.select("username, content, timestamp")
-		.eq("roomid", roomId)
-		.order("timestamp", { ascending: true })
+		.eq("room_id", roomId)
+		.order("timestamp", { ascending: false })
 		.limit(limit);
 
 	if (error) {
@@ -19,7 +19,7 @@ export async function saveAIReply(aiReply: string, roomId: string) {
 	const { error } = await supabase.from("messages").insert({
 		content: aiReply,
 		username: "openai-bot",
-		roomid: roomId,
+		room_id: roomId,
 		isai: true,
 	});
 	if (error) {

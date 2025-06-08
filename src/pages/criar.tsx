@@ -2,10 +2,12 @@ import Layout from "@/components/Layout";
 import { MainForm } from "@/components/MainForm";
 import Paragraf from "@/components/Paragraf";
 import Title from "@/components/Title";
+import { useUsername } from "@/hooks/useUsername";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 
 export default function CreateRoomPage() {
+	const { username } = useUsername();
 	const router = useRouter();
 	const [room, setRoom] = useState({
 		name: "",
@@ -122,6 +124,13 @@ export default function CreateRoomPage() {
 			passwordRef.current?.focus();
 			return;
 		}
+		if (!username) {
+			setErrors((prev) => ({
+				...prev,
+				general: "Por favor, defina seu nome no perfil.",
+			}));
+			return;
+		}
 
 		setLoading(true);
 		// Aqui seria a lógica para criar a sala
@@ -132,6 +141,7 @@ export default function CreateRoomPage() {
 			isPublic: room.isPublic,
 			maxParticipants: room.maxParticipants,
 			password: room.password,
+			host: username,
 		});
 
 		try {
@@ -143,10 +153,11 @@ export default function CreateRoomPage() {
 				body: JSON.stringify({
 					name: room.name,
 					description: room.description,
-					roomType: room.roomType,
+					type: room.roomType,
 					isPublic: room.isPublic,
 					maxParticipants: room.maxParticipants,
 					password: room.password,
+					host: username,
 				}),
 			});
 			if (!response.ok) {

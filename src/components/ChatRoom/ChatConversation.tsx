@@ -5,23 +5,16 @@ import React, { type RefObject } from "react";
 type ChatConversationProps = {
 	messages: Message[];
 	bottomRef: RefObject<HTMLDivElement | null>;
-	isLoading: boolean;
 	isReplying: boolean;
 };
 
 export default function ChatConversation({
 	messages,
 	bottomRef,
-	isLoading,
 	isReplying,
 }: ChatConversationProps) {
 	return (
 		<div className="border-y border-slate-100 px-4 max-h-[80vh] flex flex-col">
-			<div className="flex justify-between items-center mb-4">
-				{isLoading && (
-					<span className="text-xs text-gray-400">Carregando...</span>
-				)}
-			</div>
 			<div className="flex-1 overflow-y-auto space-y-4">
 				{messages.map((msg) => (
 					<div

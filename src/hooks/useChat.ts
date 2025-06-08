@@ -6,7 +6,6 @@ import { useEffect, useRef, useState } from "react";
 export function useChat(username: string, id: string | string[] | undefined) {
 	const router = useRouter();
 	const [messages, setMessages] = useState<Message[]>([]);
-	const [newMessage, setNewMessage] = useState("");
 	const [isLoading, setIsLoading] = useState(true);
 	const [room, setRoom] = useState<Room | null>(null);
 	const [newMessageError, setNewMessageError] = useState("");
@@ -17,7 +16,7 @@ export function useChat(username: string, id: string | string[] | undefined) {
 	const roomId = typeof id === "string" ? id : id?.[0] || "";
 
 	// 🧠 Validações reutilizáveis
-	const validateMessage = () => {
+	const validateMessage = (newMessage: string) => {
 		if (!newMessage.trim()) {
 			return "Mensagem não pode ser vazia.";
 		}
@@ -61,7 +60,7 @@ export function useChat(username: string, id: string | string[] | undefined) {
 		const { data, error } = await supabase
 			.from("messages")
 			.select("*")
-			.eq("roomid", roomId)
+			.eq("room_id", roomId)
 			.order("timestamp", { ascending: true });
 
 		if (error) {
@@ -76,11 +75,10 @@ export function useChat(username: string, id: string | string[] | undefined) {
 		}
 	};
 
-	// 📤 Enviar nova mensagem
-	const sendMessage = async () => {
+	const sendMessage = async (newMessage: string) => {
 		setNewMessageError("");
 
-		const error = validateMessage();
+		const error = validateMessage(newMessage);
 		if (error) {
 			setNewMessageError(error);
 			newMessageRef.current?.focus();
@@ -91,7 +89,7 @@ export function useChat(username: string, id: string | string[] | undefined) {
 			const { error: insertError } = await supabase.from("messages").insert({
 				content: newMessage,
 				username,
-				roomid: roomId,
+				room_id: roomId,
 				isai: false,
 			});
 
@@ -100,10 +98,9 @@ export function useChat(username: string, id: string | string[] | undefined) {
 				setNewMessageError("Erro ao enviar mensagem.");
 				return;
 			}
+			setIsLoading(false);
 
-			setNewMessage("");
-
-			setIsReplying(true); // Início da resposta automática
+			setIsReplying(true);
 
 			await fetch("/api/chat-reply", {
 				method: "POST",
@@ -114,12 +111,10 @@ export function useChat(username: string, id: string | string[] | undefined) {
 			console.error("Erro geral ao enviar mensagem:", err);
 			setNewMessageError("Erro inesperado.");
 		} finally {
-			setIsLoading(false);
-			setIsReplying(false); // Fim da resposta automática
+			setIsReplying(false);
 		}
 	};
 
-	// 📡 Efeito de inicialização
 	useEffect(() => {
 		if (!roomId) return;
 
@@ -136,7 +131,11 @@ export function useChat(username: string, id: string | string[] | undefined) {
 					table: "messages",
 				},
 				(payload: { new: Message }) => {
-					setMessages((prev) => [...prev, payload.new]);
+					console.log("router.asPath", router.asPath);
+					console.log("payload.new.roomId", payload.new.room_id);
+					if (router.asPath.includes(payload.new.room_id)) {
+						setMessages((prev) => [...prev, payload.new]);
+					}
 				},
 			)
 			.subscribe();
@@ -152,8 +151,6 @@ export function useChat(username: string, id: string | string[] | undefined) {
 
 	return {
 		messages,
-		newMessage,
-		setNewMessage,
 		sendMessage,
 		room,
 		isLoading,

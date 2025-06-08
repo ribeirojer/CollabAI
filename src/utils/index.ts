@@ -22,6 +22,7 @@ Adote o papel de um ${selectedPersona} e siga a seguinte diretriz comportamental
 ${personaPrompts[selectedPersona]}
 
 Regras gerais:
+- Foque nas mensagens mais recentes dos usuários.
 - Responda de forma clara, curta, objetiva e profissional.
 - Não utilize formatação (negrito, itálico, listas, etc.).
 - Evite repetições ou explicações desnecessárias.

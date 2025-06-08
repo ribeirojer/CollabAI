@@ -1,13 +1,11 @@
 import { PaperPlaneRightIcon } from "@phosphor-icons/react";
 import type React from "react";
-import type { RefObject } from "react";
+import { type RefObject, useState } from "react";
 
 type ChatInputProps = {
 	isLoading: boolean;
 	isReplying: boolean;
-	newMessage: string;
-	setNewMessage: (msg: string) => void;
-	sendMessage: () => void;
+	sendMessage: (newMessage: string) => Promise<void>;
 	newMessageError: string;
 	newMessageRef: RefObject<HTMLInputElement | null>;
 };
@@ -15,17 +13,22 @@ type ChatInputProps = {
 export default function ChatInput({
 	isLoading,
 	isReplying,
-	newMessage,
-	setNewMessage,
 	sendMessage,
 	newMessageError,
 	newMessageRef,
 }: ChatInputProps) {
+	const [newMessage, setNewMessage] = useState("");
+
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === "Enter" && !e.shiftKey) {
 			e.preventDefault();
-			sendMessage();
+			sendMessage(newMessage);
 		}
+	};
+
+	const handleSendMessage = async () => {
+		await sendMessage(newMessage);
+		setNewMessage("");
 	};
 
 	return (
@@ -42,7 +45,7 @@ export default function ChatInput({
 				/>
 
 				<button
-					onClick={sendMessage}
+					onClick={handleSendMessage}
 					disabled={isLoading || isReplying}
 					className="flex items-center gap-1 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-xl transition"
 					type="button"

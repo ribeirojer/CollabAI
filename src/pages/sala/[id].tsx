@@ -13,8 +13,6 @@ export default function Home() {
 
 	const {
 		messages,
-		newMessage,
-		setNewMessage,
 		sendMessage,
 		room,
 		isLoading,
@@ -30,15 +28,12 @@ export default function Home() {
 				<ChatRoomHeader name={room?.name} description={room?.description} />
 				<ChatConversation
 					messages={messages}
-					isLoading={isLoading}
 					isReplying={isReplying}
 					bottomRef={bottomRef}
 				/>
 				<ChatInput
 					isLoading={isLoading}
 					isReplying={isReplying}
-					newMessage={newMessage}
-					setNewMessage={setNewMessage}
 					sendMessage={sendMessage}
 					newMessageError={newMessageError}
 					newMessageRef={newMessageRef}

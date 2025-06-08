@@ -32,7 +32,7 @@ export interface Room {
 
 export interface Message {
 	id: string;
-	roomId: string;
+	room_id: string;
 	username: string | null; // null para mensagens da IA
 	content: string;
 	isai: boolean;

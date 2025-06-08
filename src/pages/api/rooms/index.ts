@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import type { Room } from "../../../interfaces";
-import { createRoom, getPublicRooms } from "../../../repositories/room";
+import { createRoom, getPublicRooms } from "../../../repositories/rooms";
 
 export default async function handler(
 	req: NextApiRequest,

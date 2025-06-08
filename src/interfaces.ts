@@ -39,6 +39,8 @@ export interface Message {
 	timestamp: Date;
 }
 
+export type Persona = "moderador" | "criativo" | "analista" | "mentor";
+
 export interface RoomParticipant {
 	roomId: string;
 	userId: string;

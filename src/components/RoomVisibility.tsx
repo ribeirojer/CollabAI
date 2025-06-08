@@ -42,7 +42,7 @@ export const RoomVisibility = ({
 			<div className="flex justify-between items-center p-4 rounded-lg shadow-sm">
 				<div className="flex items-center gap-3">
 					{room.isPublic ? (
-						<GlobeIcon size={24} weight="duotone" className="text-blue-600" />
+						<GlobeIcon size={24} weight="duotone" className="text-purple-600" />
 					) : (
 						<LockIcon size={24} weight="duotone" className="text-gray-600" />
 					)}
@@ -56,7 +56,7 @@ export const RoomVisibility = ({
 						type="button"
 						className={`pointer px-4 py-2 rounded-lg border text-sm font-medium ${
 							room.isPublic
-								? "bg-blue-600 text-white"
+								? "bg-purple-600 text-white"
 								: "bg-white text-gray-700 border-gray-300"
 						}`}
 						onClick={() => setRoom({ ...room, isPublic: true })}

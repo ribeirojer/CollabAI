@@ -35,7 +35,7 @@ export interface Message {
 	roomId: string;
 	username: string | null; // null para mensagens da IA
 	content: string;
-	isAI: boolean;
+	isai: boolean;
 	timestamp: Date;
 }
 

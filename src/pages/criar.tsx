@@ -208,7 +208,7 @@ export default function CreateRoomPage() {
 					</div>
 				)}
 				<button
-					className="w-full bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors duration-200 mt-6"
+					className="w-full bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors duration-200 mt-6"
 					aria-label="Criar Sala"
 					aria-disabled={loading}
 					disabled={loading}

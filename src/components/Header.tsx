@@ -1,16 +1,22 @@
+import { useUsername } from "@/hooks/useUsername";
 import {
-	MagnifyingGlassIcon,
+	ExclamationMarkIcon,
 	PlusIcon,
 	RobotIcon,
+	UserIcon,
 } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 
 const Header = () => {
+	const { username } = useUsername();
 	const pathname = usePathname();
 
-	const links = [{ href: "/criar", icon: PlusIcon, label: "Criar" }];
+	const links = [
+		{ href: "/criar", icon: PlusIcon, label: "Criar" },
+		{ href: "/perfil", icon: UserIcon, label: username || "Perfil" },
+	];
 
 	return (
 		<>
@@ -22,16 +28,33 @@ const Header = () => {
 					</Link>
 
 					<nav className="flex gap-4 md:gap-6">
-						{links.map((link) => (
-							<Link
-								key={link.href}
-								href={link.href}
-								className={`flex items-center font-bold gap-2 pointer ${pathname === link.href ? "default" : "ghost"}`}
-							>
-								<link.icon className="size-8" weight="duotone" size={32} />
-								<span className="hidden md:block">{link.label}</span>
-							</Link>
-						))}
+						<Link
+							href={"/criar"}
+							className={`flex items-center font-bold gap-2 pointer ${pathname === "/criar" ? "text-purple-600" : "text-gray-700"} transition-colors hover:text-purple-600`}
+							aria-label="Criar novo projeto"
+							title="Criar novo projeto"
+						>
+							<PlusIcon className="size-8" weight="duotone" size={32} />
+							<span className="hidden md:block">Criar</span>
+						</Link>
+						<Link
+							href={"/perfil"}
+							className={`flex items-center font-bold gap-2 pointer ${pathname === "/perfil" ? "text-purple-600" : "text-gray-700"} transition-colors hover:text-purple-600`}
+							aria-label="Perfil"
+							title="Ir para o perfil"
+						>
+							<div className="relative">
+								{!username && (
+									<ExclamationMarkIcon
+										className="absolute -top-1 -right-1 text-red-500 size-4"
+										weight="duotone"
+										size={16}
+									/>
+								)}
+								<UserIcon className="size-8" weight="duotone" size={32} />
+							</div>
+							<span className="hidden md:block">{username || "Perfil"}</span>
+						</Link>
 					</nav>
 				</div>
 			</header>

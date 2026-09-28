@@ -1,40 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# CollabAI
 
-## Getting Started
+Chat em grupo com participação de IA generativa — submissão para o hackathon da Adapta.
 
-First, run the development server:
+**Demo:** https://collab-ai-theta.vercel.app
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+> ![Demo do CollabAI](docs/demo.png)
+> *(adicione um print ou GIF da sala em `docs/demo.png`)*
+
+Cada sala tem uma **persona de IA** (moderador, criativo, analista ou mentor) que acompanha a conversa e responde com base nas mensagens recentes, via OpenAI.
+
+## Stack
+
+- **Next.js 15** (Pages Router) + **React 19** + **TypeScript**
+- **Tailwind CSS v4** + Phosphor Icons
+- **Supabase** (PostgreSQL — tabelas `rooms` e `messages`)
+- **OpenAI** `gpt-4o-mini` (via REST, sem SDK)
+- **Vitest** (testes) + **Biome** (lint/format)
+
+## Como funciona
+
+```text
+Usuários conversam na sala (Supabase)
+   ↓
+POST /api/chat-reply { roomId }
+   ↓
+Busca sala + mensagens recentes
+   ↓
+Monta system prompt da persona (moderador|criativo|analista|mentor)
+   ↓
+OpenAI gpt-4o-mini → resposta salva como mensagem da IA
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Funcionalidades
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+- 🧑‍🤝‍🧑 Salas de chat em grupo (públicas/privadas, com tipos)
+- 🤖 Resposta automática da IA com persona configurável por sala
+- ⭐ Salas em destaque + estatísticas
+- 👤 Perfil com nome de usuário persistido
+- ✅ Testes com Vitest (`test/room.spec.ts`)
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Como rodar
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+```bash
+npm install
+npm run dev   # http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Variáveis de ambiente
 
-## Learn More
+Crie um arquivo `.env.local`:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+OPENAI_API_KEY=sua-openai-key
+NEXT_PUBLIC_SUPABASE_URL=https://seu-projeto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sua-anon-key
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+O projeto Supabase precisa das tabelas `rooms` e `messages` (ver `src/repositories/`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Scripts
 
-## Deploy on Vercel
+| Comando | Descrição |
+|---|---|
+| `npm run dev` | Dev com Turbopack |
+| `npm run build` / `npm start` | Build / produção |
+| `npm run test:watch` | Testes em watch |
+| `npm run test:coverage` | Testes com cobertura |
+| `npm run lint` | Biome check + fix |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Estrutura
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+```text
+src/
+  pages/            index, criar, perfil, sala/[id]
+  pages/api/        chat-reply (OpenAI), rooms (CRUD)
+  components/       Chat, MessageList, MessageInput, ChatRoom/*, ...
+  repositories/     rooms.ts, messages.ts (camada Supabase)
+  hooks/            useChat, useUsername
+  utils/            system prompt, formatação, chamada OpenAI
+  interfaces.ts     Room, Persona, Message
+test/               room.spec.ts (vitest)
+```
+
+## Licença
+
+Sem arquivo de licença no momento — considere adicionar `LICENSE` (ex: MIT).
